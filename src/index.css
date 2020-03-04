@@ -4,6 +4,10 @@ body {
   font-family: sans-serif;
 }
 
-.checked {
+.task .checked {
   text-decoration: line-through;
+}
+
+.task .remove-task {
+  float: right;
 }

@@ -1,49 +1,49 @@
-import React, { useState, useEffect } from "react"
-import TasksList from "./TasksList"
-
+import React, { useState, useEffect, useReducer } from "react";
+import TasksList from "./TasksList";
+import { Context } from "./context";
+import reducer from "./reducer";
 import "./App.css";
 
 export default function App() {
-  const [tasks, setTasks] = useState([])
-
-  const [taskTitle, setTaskTitle] = useState("")
-
-  useEffect(() => {
-    const raw = localStorage.getItem('tasks', JSON.stringify(tasks)) || []
-    setTasks(JSON.parse(raw))
-  }, [])
+  const [state, dispatch] = useReducer(
+    reducer,
+    JSON.parse(localStorage.getItem("tasks", JSON.stringify(state)))
+  );
+  const [taskTitle, setTaskTitle] = useState("");
 
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks))
-  }, [tasks])
+    localStorage.setItem("tasks", JSON.stringify(state));
+  }, [state]);
 
   const addTask = target => {
     if (event.key === "Enter") {
-      setTasks([
-        ...tasks,
-        {
-          id: Date.now(),
-          title: taskTitle
-        }
-      ]);
-
+      dispatch({
+        type: "add",
+        payload: taskTitle
+      });
       setTaskTitle("");
     }
   };
 
   return (
-    <div className="container">
-      <h1>Tasks List</h1>
-      <div className="input-field col s6">
-        <input
-          placeholder="Create task"
-          type="text"
-          value={taskTitle}
-          onChange={event => setTaskTitle(event.target.value)}
-          onKeyPress={addTask}
-        />
+    <Context.Provider
+      value={{
+        dispatch
+      }}
+    >
+      <div className="container">
+        <h1>Tasks List</h1>
+        <div className="input-field col s6">
+          <input
+            placeholder="Create task"
+            type="text"
+            value={taskTitle}
+            onChange={event => setTaskTitle(event.target.value)}
+            onKeyPress={addTask}
+          />
+        </div>
+        <TasksList tasks={state} />
       </div>
-      <TasksList tasks={tasks} />
-    </div>
+    </Context.Provider>
   );
 }
